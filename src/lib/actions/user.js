@@ -11,7 +11,7 @@ export const createOrUpdateUser = async (
 ) => {
   try {
     await connect();
-    const user = await User.findByIdAndUpdate(
+    const user = await User.findOneAndUpdate(
       { clerkId: id },
       {
         $set: {
@@ -29,13 +29,11 @@ export const createOrUpdateUser = async (
   }
 };
 
-
-
 export const deleteUser = async (id) => {
-    try{
-        await connect();
-        await User.findByIdAndDelete({ clerkId: id });
-    } catch(error) {
-        console.log('Error: Could not delete user:', error);
-    }
-}
+  try {
+    await connect();
+    await User.findOneAndDelete({ clerkId: id });
+  } catch (error) {
+    console.log("Error: Could not delete user:", error);
+  }
+};
