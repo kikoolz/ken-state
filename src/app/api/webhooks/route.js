@@ -54,14 +54,16 @@ export async function POST(req) {
   const eventType = evt?.type;
 
   if (eventType === "user.created" || eventType === "user.updated") {
-    const { first_name, last_name, image_url, email_addresses } = evt?.data;
+    console.log("Received user event data:", evt.data);
+    const { firstName, lastName, imageUrl, emailAddresses } = evt?.data;
+    const primaryEmail = emailAddresses?.find(email => email.primary)?.emailAddress || null;
     try {
       const user = await createOrUpdateUser(
         id,
-        first_name,
-        last_name,
-        image_url,
-        email_addresses
+        firstName || "",
+        lastName || "",
+        imageUrl || "",
+        primaryEmail
       );
       if (user && eventType === "user.created") {
         try {
@@ -70,6 +72,7 @@ export async function POST(req) {
               userMogoId: user._id,
             },
           });
+          console.log(`Successfully synced metadata for user ${id} with Mongo ID ${user._id}`);
         } catch (error) {
           console.log("Error: Could not update user metadata:", error);
         }
