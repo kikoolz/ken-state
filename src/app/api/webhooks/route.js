@@ -13,7 +13,7 @@ export async function POST(req) {
   }
 
   // Create new Svix instance with secret
-  const wh = new Webhook(CLERK_WEBHOOK_SIGNING_SECRET);
+  const wh = new Webhook(SIGNING_SECRET);
 
   // Get headers
   const headerPayload = await headers();
