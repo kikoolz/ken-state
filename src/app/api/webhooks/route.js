@@ -65,16 +65,21 @@ export async function POST(req) {
         image_url,
         email_addresses
       );
-      console.log(`User ${eventType} result:`, user ? `Success - ID: ${user._id}` : "Failed - no user returned");
-      
-      if (user && user._id) {
+      console.log(
+        `User ${eventType} result:`,
+        user ? `Success - ID: ${user._id}` : "Failed - no user returned"
+      );
+
+      if (user && eventType === "user.created") {
         try {
           await clerkClient.users.updateUserMetadata(id, {
             publicMetadata: {
               userMongoId: user._id,
             },
           });
-          console.log(`Successfully updated Clerk metadata for user ${id} with MongoDB ID ${user._id}`);
+          console.log(
+            `Successfully updated Clerk metadata for user ${id} with MongoDB ID ${user._id}`
+          );
         } catch (error) {
           console.log("Error: Could not update user metadata:", error);
         }
