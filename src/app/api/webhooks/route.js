@@ -69,7 +69,7 @@ export async function POST(req) {
       
       if (user && user._id) {
         try {
-          await clerkClient({ secretKey: process.env.CLERK_SECRET_KEY }).users.updateUserMetadata(id, {
+          await clerkClient.users.updateUserMetadata(id, {
             publicMetadata: {
               userMongoId: user._id,
             },
