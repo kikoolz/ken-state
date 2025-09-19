@@ -56,6 +56,7 @@ export async function POST(req) {
 
   if (evt.type === "user.created" || evt.type === "user.updated") {
     const { first_name, last_name, image_url, email_addresses } = evt?.data;
+    console.log(`Processing ${eventType} for user ${id}`);
     try {
       const user = await createOrUpdateUser(
         id,
@@ -64,13 +65,16 @@ export async function POST(req) {
         image_url,
         email_addresses
       );
-      if (user && eventType === "user.created") {
+      console.log(`User ${eventType} result:`, user ? `Success - ID: ${user._id}` : "Failed - no user returned");
+      
+      if (user && user._id) {
         try {
           await clerkClient().users.updateUserMetadata(id, {
             publicMetadata: {
               userMongoId: user._id,
             },
           });
+          console.log(`Successfully updated Clerk metadata for user ${id} with MongoDB ID ${user._id}`);
         } catch (error) {
           console.log("Error: Could not update user metadata:", error);
         }

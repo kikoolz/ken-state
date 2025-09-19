@@ -28,6 +28,7 @@ export const createOrUpdateUser = async (
     return user;
   } catch (error) {
     console.log("Error: Could not create or update user:", error);
+    throw error; // Re-throw the error so the webhook can handle it properly
   }
 };
 
