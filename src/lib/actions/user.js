@@ -40,4 +40,3 @@ export const deleteUser = async (id) => {
     console.log("Error: Could not delete user:", error);
   }
 };
-
