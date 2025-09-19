@@ -1,8 +1,7 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
-import { createOrUpdateUser } from "@/lib/actions/user";
+import { createOrUpdateUser, deleteUser } from "@/lib/actions/user";
 import { clerkClient } from "@clerk/nextjs/server";
-import { deleteUser } from "@/lib/actions/user";
 
 export async function POST(req) {
   const SIGNING_SECRET = process.env.SIGNING_SECRET;
@@ -30,7 +29,8 @@ export async function POST(req) {
   }
 
   // Get body
-  const body = await req.text();
+  const payload = await req.json();
+  const body = JSON.stringify(payload);
 
   let evt;
 
@@ -48,15 +48,13 @@ export async function POST(req) {
     });
   }
 
-  // Do something withpayload
-  // For this guide, payload to console
-
+  // Do something with payload
+  // For this guide, log payload to console
   const { id } = evt?.data;
-  const eventType = evt.type;
+  const eventType = evt?.type;
 
-  if (evt.type === "user.created" || evt.type === "user.updated") {
+  if (eventType === "user.created" || eventType === "user.updated") {
     const { first_name, last_name, image_url, email_addresses } = evt?.data;
-    console.log(`Processing ${eventType} for user ${id}`);
     try {
       const user = await createOrUpdateUser(
         id,
@@ -65,37 +63,15 @@ export async function POST(req) {
         image_url,
         email_addresses
       );
-      console.log(
-        `User ${eventType} result:`,
-        user ? `Success - ID: ${user._id}` : "Failed - no user returned"
-      );
-
       if (user && eventType === "user.created") {
         try {
-          // Check if clerkClient and users are available
-          if (!clerkClient || !clerkClient.users) {
-            console.log("Error: clerkClient.users is not available");
-            return;
-          }
-
-          // Update user metadata using the correct Clerk API
-          await clerkClient.users.updateUser(id, {
+          await clerkClient.users.updateUserMetadata(id, {
             publicMetadata: {
-              userMongoId: user._id,
+              userMogoId: user._id,
             },
           });
-          console.log(
-            `Successfully updated Clerk metadata for user ${id} with MongoDB ID ${user._id}`
-          );
         } catch (error) {
           console.log("Error: Could not update user metadata:", error);
-          // Log more details about the error for debugging
-          console.log("Error details:", {
-            message: error.message,
-            stack: error.stack,
-            clerkClient: !!clerkClient,
-            clerkClientUsers: !!(clerkClient && clerkClient.users),
-          });
         }
       }
     } catch (error) {
