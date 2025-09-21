@@ -29,8 +29,7 @@ export async function POST(req) {
   }
 
   // Get body
-  const payload = await req.json();
-  const body = JSON.stringify(payload);
+  const body = await req.text();
 
   let evt;
 
@@ -65,13 +64,30 @@ export async function POST(req) {
       );
       if (user && eventType === "user.created") {
         try {
-          await clerkClient.users.updateUserMetadata(id, {
+          // Check if clerkClient and users are available
+          if (!clerkClient || !clerkClient.users) {
+            console.log("Error: clerkClient.users is not available");
+            return;
+          }
+          
+          // Update user metadata using the correct Clerk API
+          await clerkClient.users.updateUser(id, {
             publicMetadata: {
               userMongoId: user._id,
             },
           });
+          console.log(
+            `Successfully updated Clerk metadata for user ${id} with MongoDB ID ${user._id}`
+          );
         } catch (error) {
           console.log("Error: Could not update user metadata:", error);
+          // Log more details about the error for debugging
+          console.log("Error details:", {
+            message: error.message,
+            stack: error.stack,
+            clerkClient: !!clerkClient,
+            clerkClientUsers: !!(clerkClient && clerkClient.users),
+          });
         }
       }
     } catch (error) {

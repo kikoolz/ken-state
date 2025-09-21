@@ -40,3 +40,14 @@ export const deleteUser = async (id) => {
     console.log("Error: Could not delete user:", error);
   }
 };
+
+export const getUserByClerkId = async (clerkId) => {
+  try {
+    await connect();
+    const user = await User.findOne({ clerkId });
+    return user;
+  } catch (error) {
+    console.log("Error: Could not get user:", error);
+    throw error;
+  }
+};
