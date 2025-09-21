@@ -71,13 +71,13 @@ export async function POST(req) {
           }
           
           // Update user metadata using the correct Clerk API
-          await clerkClient.users.updateUser(id, {
+          await clerkClient.users.updateUserMetadata(id, {
             publicMetadata: {
-              userMongoId: user._id,
+              userMongoId: user._id.toString(),
             },
           });
           console.log(
-            `Successfully updated Clerk metadata for user ${id} with MongoDB ID ${user._id}`
+            `Clerk userId ${id} successfully synced with MongoDB ID ${user._id.toString()}`
           );
         } catch (error) {
           console.log("Error: Could not update user metadata:", error);
